@@ -50,6 +50,7 @@ import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Audio;
 import android.provider.MediaStore.Audio.AlbumColumns;
 import android.provider.MediaStore.Audio.Albums;
@@ -811,7 +812,8 @@ public class MediaDocumentsProvider extends DocumentsProvider {
 
         final RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, cursor.getString(ArtistQuery.ARTIST));
+        row.add(Document.COLUMN_DISPLAY_NAME,
+                cleanUpMediaDisplayName(cursor.getString(ArtistQuery.ARTIST)));
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }
 
@@ -830,7 +832,8 @@ public class MediaDocumentsProvider extends DocumentsProvider {
 
         final RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, cursor.getString(AlbumQuery.ALBUM));
+        row.add(Document.COLUMN_DISPLAY_NAME,
+                cleanUpMediaDisplayName(cursor.getString(AlbumQuery.ALBUM)));
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }
 
@@ -1052,5 +1055,12 @@ public class MediaDocumentsProvider extends DocumentsProvider {
         } finally {
             IoUtils.closeQuietly(cursor);
         }
+    }
+
+    private String cleanUpMediaDisplayName(String displayName) {
+        if (!MediaStore.UNKNOWN_STRING.equals(displayName)) {
+            return displayName;
+        }
+        return getContext().getResources().getString(com.android.internal.R.string.unknownName);
     }
 }
